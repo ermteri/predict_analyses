@@ -10,7 +10,7 @@ import re
 def open_csv_file(result, csv_file):
     '''
     :param csv_file: the file to open
-    :return: the file content as a list of csv records
+    :return: the file content as a list of dicts
     '''
     year = re.search('.*(....).csv', csv_file).group(1)
     energy_type = 'None'
@@ -26,10 +26,21 @@ def open_csv_file(result, csv_file):
             row['year'] = year
             row['energy_type'] = energy_type
             result.append(dict(row))
-    header = list(reader.fieldnames)
-    header.append('year')
-    header.append('energy_type')
-    return result, header
+
+    return result
+
+
+def print_result(result):
+    '''
+    Prints the result as a csv on stdout sorted on year and energy_type
+    :param result: The data as a list of dict's
+    :return: Nothing
+    '''
+    fieldnames = result[0].keys()
+    writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in sorted(result, key=lambda i: (i['year'], i['energy_type'])):
+        writer.writerow(row)
 
 
 def run(args):
@@ -38,12 +49,8 @@ def run(args):
     args = parser.parse_args()
     result = list()
     for csvfile in args.csvfiles:
-        result, field_names = open_csv_file(result, csvfile)
-    header_form = ','.join(['{}' for i in range(len(field_names))])
-    print(field_names)
-    for row in sorted(result, key=lambda i: (i['year'], i['energy_type'])):
-        out = row.values()
-        print(header_form.format(*out))
+        result = open_csv_file(result, csvfile)
+    print_result(result)
 
 
 if __name__ == '__main__':
