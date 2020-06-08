@@ -4,6 +4,7 @@ import argparse
 import sys
 import csv
 import matplotlib.pyplot as plt
+from matplotlib import interactive
 from collections import defaultdict
 
 # net_manager,purchase_area,street,zipcode_from,zipcode_to,city,delivery_perc,num_connections,perc_of_active_connections,
@@ -22,22 +23,14 @@ def open_csv_file(csv_file):
     return result
 
 
-def plot_result(result, number, energy):
+def plot_result(result, div, title, number):
     x = list()
     y = list()
-    if energy == 'Electricity':
-        div = 1000000
-        energy = 'Electrical'
-        unit = 'GWh'
-    else:
-        div = 1000000
-        energy = 'Gas'
-        unit = 'Million m3'
-    for idx, row in enumerate(result):
+    top_cities = sorted(result.items(), key=lambda x: x[1], reverse=True)[0:number]
+
+    for row in top_cities:
         x.append(row[0])
         y.append(row[1]/div)
-        if idx > number:
-            break
     fig, y_ax = plt.subplots()
     bar_color = 'tab:blue'
     y_ax.set_xlabel('Top ' + str(number) + " cities")
@@ -46,58 +39,52 @@ def plot_result(result, number, energy):
     plt.xticks(rotation=60, ha='right')
     y_ax.tick_params(axis='x', labelsize=8)
     y_ax.tick_params(axis='y', labelsize=8)
-    plt.title('{} Energy consumption 2010-2018 ({})'.format(energy, unit))
+    plt.title(title)
     fig.tight_layout()
-    plt.show()
+    return plt
 
 
-def show_result(result, data_type, energy, number):
-    cities = defaultdict(int)
-    n = 1
+def gather_data(result):
+    cities_annual_electricity = defaultdict(float)
+    cities_annual_gas = defaultdict(float)
+    cities_smart_electricity = defaultdict(float)
+    cities_smart_gas = defaultdict(float)
+    cities_smart_perc_electricity = defaultdict(float)
+    cities_smart_perc_gas = defaultdict(float)
+
     for row in result:
-        if row['energy_type'] == energy:
-            if data_type == 'annual_consume':
-                cities[row['city']] += float(row[data_type] + '0')
-            else:
-                cities[row['city']] += (float(row[data_type] + '0') - cities[row['city']]) / n;
-                n += 1
-    top_cities = sorted(cities.items(), key=lambda x: x[1], reverse=True)
-    print('City,Consume')
-    plot_result(top_cities, number, energy)
-    for idx, city in enumerate(top_cities):
-        print('{},{}'.format(city[0], city[1]))
-        if idx > number:
-            break
+        if row['energy_type'] == 'Electricity':
+            cities_annual_electricity[row['city']] += float(row['annual_consume'] + '0')
+            cities_smart_electricity[row['city']] += (float(row['annual_consume'] + '0') * float(row['smartmeter_perc'] + '0')) / 100
+        elif row['energy_type'] == 'Gas':
+            cities_annual_gas[row['city']] += float(row['annual_consume'] + '0')
+            cities_smart_gas[row['city']] += (float(row['annual_consume'] + '0') * float(row['smartmeter_perc'] + '0')) / 100
+    for city in cities_smart_electricity:
+        cities_smart_perc_electricity[city] = cities_smart_electricity[city]/cities_annual_electricity[city] * 100
+    for city in cities_smart_gas:
+        cities_smart_perc_gas[city] = cities_smart_gas[city]/cities_annual_gas[city] * 100
+    return cities_annual_electricity, cities_annual_gas, cities_smart_perc_electricity, cities_smart_perc_gas
 
 
-def check_input(args):
-    if args.type == 'a':
-        data_type = 'annual_consume'
-    elif args.type == 's':
-        data_type = 'smartmeter_perc'
-    else:
-        print("Invalid type:" + type)
-        exit(2)
-    if args.energy == 'e':
-        energy = 'Electricity'
-    elif args.energy == 'g':
-        energy= 'Gas'
-    else:
-        print("Invalid type:" + type)
-        exit(2)
-
-    return data_type, energy
 def run(args):
     parser = argparse.ArgumentParser(description='Creates a csv with top cities consumption.')
     parser.add_argument('-c', '--csvfile', type=str, required=True, help='The input csv file to read')
-    parser.add_argument('-t', '--type', type=str, required=True, help='a (annual_consume) or s (smartmeter_perc)')
-    parser.add_argument('-e', '--energy', type=str, required=True, help='e (electricity) or g (gas)')
     parser.add_argument('-n', '--number', type=int, default=10, help='How many top to view')
 
     args = parser.parse_args()
-    data_type, energy = check_input(args)
     result = open_csv_file(args.csvfile)
-    show_result(result, data_type, energy, args.number)
+    annual_el, annual_gas, smart_el, smart_gas = gather_data(result)
+    plot = plot_result(annual_el, div=1000000, title='Electrical Energy consumption 2010-2018 (GWh)', number=args.number)
+    interactive(True)
+    plot.show()
+    plot = plot_result(annual_gas, div=1000000, title='Gas Energy consumption 2010-2018 (million m3)', number=args.number)
+    plot.show()
+    plot = plot_result(smart_el, div=1, title='Smart Electrical Energy consumption 2010-2018 (%)', number=args.number)
+    plot.show()
+    plot = plot_result(smart_gas, div=1, title='Smart Gas Energy consumption 2010-2018 (%)', number=args.number)
+    interactive(False)
+    plot.show()
+
 
 
 if __name__ == '__main__':

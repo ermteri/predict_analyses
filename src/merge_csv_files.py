@@ -37,10 +37,13 @@ def print_result(result):
     :return: Nothing
     '''
     fieldnames = result[0].keys()
+    years = ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018']
     writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
     writer.writeheader()
-    for row in sorted(result, key=lambda i: (i['year'], i['energy_type'])):
-        writer.writerow(row)
+    # for row in sorted(result, key=lambda i: (i['year'], i['energy_type'])):
+    for row in result:
+        if row['year'] in years:
+            writer.writerow(row)
 
 
 def run(args):
