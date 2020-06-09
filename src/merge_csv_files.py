@@ -18,11 +18,13 @@ def open_csv_file(result, csv_file):
         energy_type = 'Gas'
     elif 'Electricity' in csv_file:
         energy_type = 'Electricity'
+    provider = csv_file.split('_')[0].split('/')[-1]
 
     with open(csv_file, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         # Append year and energy_type to the new csv
         for row in reader:
+            row['provider'] = provider
             row['year'] = year
             row['energy_type'] = energy_type
             result.append(dict(row))
