@@ -7,9 +7,9 @@
 * merge the csv files
 ./src/merge_csv.py -c data/*/*.csv > data/total.csv
 ### Present top cities consumption and smart meter usage
-* ./src/list_top_cities.py -c data/total.csv -a city
+* ./src/create_visualizations.py -c data/total.csv -a city
 ### Present low tariff usage related to different providerss
-* ./src/list_top_cities.py -c data/total.csv -a provider
+* ./src/create_visualizations.py -c data/total.csv -a provider
 
 
 
