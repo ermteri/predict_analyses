@@ -83,7 +83,7 @@ def gather_data(result, aggregate_field, compare_field):
                     compare_gas[row[aggregate_field]] += (float(row['annual_consume']) *
                                                           float(row[compare_field])) / 100
         except Exception as e:
-            print(row, e)
+            pass
     for row in compare_electricity:
         compare_perc_electricity[row] = compare_electricity[row]/annual_electricity[row] * 100
     for row in compare_gas:

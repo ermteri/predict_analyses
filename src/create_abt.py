@@ -70,10 +70,10 @@ def create_abt(result, full):
             print(instance, e)
 
         print('{},{},{},{},{}'.format(instance['year'],
-                                   instance['energy_type'],
-                                   instance['num_connections'],
-                                   instance['type_of_connection'],
-                                   instance['annual_consume']))
+                                      instance['energy_type'],
+                                      instance['num_connections'],
+                                      instance['type_of_connection'],
+                                      instance['annual_consume']))
     if not full:
         return
     print('Number of connections descriptive variable, Electricity:')
