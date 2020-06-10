@@ -61,7 +61,7 @@ def create_abt(result):
             type_of_connection[instance['type_of_connection']] += 1
         except Exception as e:
             print(instance, e)
-            exit(1)
+        print('energy_type,num_connections,type_of_connection,annual_consume')
         print('{},{},{},{}'.format(instance['energy_type'],
                                    instance['num_connections'],
                                    instance['type_of_connection'],
