@@ -12,7 +12,7 @@
 ## Create basic ABT
 `./src/create_abt.py -c data/total.csv > data/abt.csv`<br>
 ## Create visualizations for top cities, consumption and smart meter usage
-Note, the diagram created are stacked on top of each other
+Note, the diagram created are stacked on top of each other<br>
 `./src/create_visualizations.py -c data/total.csv -a city -n 10`<br>
 ## Analyze the data
 `./src/create_abt.py -f -c data/total.csv`<br>
