@@ -27,16 +27,22 @@ def open_csv_file(csv_file):
 
 
 def show_hist(data, title):
+    '''
+    :param data: the data to create a histogram over
+    :param title: the titel of the diagram
+    :return: nothing
+    '''
     a = np.hstack(data)
     _ = plt.hist(a, bins='auto')  # arguments are passed to np.histogram
-    plt.title('Histogram for '+ title)
+    plt.title('Histogram for ' + title)
     plt.show()
 
 
-def create_abt(result):
+def create_abt(result, full):
     '''
     Gather the data from the provided csv file
     :param result: the csv file that contains the energy consumptions
+    :param full: if full analyses shall be done
     :return: four lists with dict's: total consumption for gas and energy and percentage smart consumption
     '''
     num_connections_el = list()
@@ -46,6 +52,7 @@ def create_abt(result):
     type_of_connection = defaultdict(int)
     annual_consume_el = list()
     annual_consume_gas = list()
+    print('year,energy_type,num_connections,type_of_connection,annual_consume')
     for instance in result:
         try:
             if instance['energy_type'] == 'Electricity':
@@ -61,19 +68,21 @@ def create_abt(result):
             type_of_connection[instance['type_of_connection']] += 1
         except Exception as e:
             print(instance, e)
-        print('energy_type,num_connections,type_of_connection,annual_consume')
-        print('{},{},{},{}'.format(instance['energy_type'],
+
+        print('{},{},{},{},{}'.format(instance['year'],
+                                   instance['energy_type'],
                                    instance['num_connections'],
                                    instance['type_of_connection'],
                                    instance['annual_consume']))
+    if not full:
+        return
     print('Number of connections descriptive variable, Electricity:')
     print('========================================================')
     print('Min:', min(num_connections_el))
     print('Max:', max(num_connections_el))
     print('Mean:', mean(num_connections_el))
     print('Median:', median(num_connections_el))
-    # print('>100', num_connections_el_high)
-    show_hist(num_connections_el_high, 'Electricity')
+    show_hist(num_connections_el_high, 'number of electricity connections')
 
     print('Number of connections descriptive variable, Gas:')
     print('================================================')
@@ -81,8 +90,7 @@ def create_abt(result):
     print('Max:', max(num_connections_gas))
     print('Mean:', mean(num_connections_gas))
     print('Median:', median(num_connections_gas))
-    # print('>100', num_connections_gas_high)
-    show_hist(num_connections_gas_high, 'Gas')
+    show_hist(num_connections_gas_high, 'number of gas connections')
 
     print('Type of connection descriptive variable')
     print('=======================================')
@@ -95,7 +103,7 @@ def create_abt(result):
     print('Max:', max(annual_consume_el))
     print('Mean:', mean(annual_consume_el))
     print('Median:', median(annual_consume_el))
-    show_hist(annual_consume_el, 'Electricity')
+    show_hist(annual_consume_el, 'annual electricity consumption')
 
     print('Annual consumption target variable, Gas')
     print('=======================================')
@@ -103,7 +111,7 @@ def create_abt(result):
     print('Max:', max(annual_consume_gas))
     print('Mean:', mean(annual_consume_gas))
     print('Median:', median(annual_consume_gas))
-    show_hist(annual_consume_gas, 'Electricity')
+    show_hist(annual_consume_gas, 'annual gas consumption')
 
 
 def run(args):
@@ -114,10 +122,11 @@ def run(args):
     '''
     parser = argparse.ArgumentParser(description='Creates a csv with top cities consumption.')
     parser.add_argument('-c', '--csvfile', type=str, required=True, help='The input csv file to read')
+    parser.add_argument('-f', '--full', default=False, action='store_true', help="If full analyses should be added.")
 
     args = parser.parse_args()
     result = open_csv_file(args.csvfile)
-    create_abt(result)
+    create_abt(result, args.full)
 
 
 if __name__ == '__main__':
