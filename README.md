@@ -1,6 +1,8 @@
-# Prerequisites
+
+# Predictive Analyses
+Instructions on how to use the tools developed for the coarse Predictive Analyses at MDH 
+## Prerequisites
 python3.7 or later installed
-# Predict analyses
 ## Preparations
 ### Clone the repo and create python virtual environment <br>
 `git clone https://github.com/ermteri/predict_analyses.git`<br>
