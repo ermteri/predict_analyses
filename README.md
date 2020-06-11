@@ -1,3 +1,5 @@
+# Prerequisites
+python3.7 or later installed
 # Predict analyses
 ## Preparations
 ### Clone the repo and create python virtual environment <br>
